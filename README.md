@@ -43,7 +43,9 @@ The Big Mart Sales Predictor is a machine learning-based web application designe
 5. Open the app in your browser and input product and outlet features to predict sales.  
 
 ## **User Interface Screenshot**
-![User Interface Screenshot](https://via.placeholder.com/800x450.png?text=User+Interface+Screenshot)  
+![1](https://github.com/user-attachments/assets/adfea1d8-a5b1-4a26-a9d5-b34da6cf2dca)
+
+![2](https://github.com/user-attachments/assets/06f04f53-c7dc-4901-8aff-a130a3a66df5)
 
 ## **Conclusion**
 The Big Mart Sales Predictor provides a simple and efficient way for retail businesses to predict sales based on product and outlet features. By leveraging machine learning and interactive visualizations, this tool enables users to make data-driven decisions and optimize their operations.
