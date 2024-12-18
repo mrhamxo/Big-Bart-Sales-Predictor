@@ -7,9 +7,9 @@ import seaborn as sns
 import joblib
 
 # Load the trained Gradient Boosting model
-gbr = joblib.load("models/gbr.pkl")  # Ensure your trained model is saved in this file
+gbr = joblib.load("models/gbr.pkl")
 
-st.title("Big Mart Sales Prediction Application")
+st.title("Big Mart Sales Prediction")
 
 # Mappings for categorical features
 fat_content_map = {0: 'Low Fat', 1: 'Regular'}
@@ -21,21 +21,78 @@ outlet_size_map = {0: 'Medium', 1: 'High', 2: 'Small'}
 location_type_map = {0: 'Tier 1', 1: 'Tier 3', 2: 'Tier 2'}
 outlet_type_map = {0: 'Supermarket Type1', 1: 'Supermarket Type2', 2: 'Grocery Store', 3: 'Supermarket Type3'}
 
-# Sidebar Input Section
-st.sidebar.title("Big Mart Sales Predictor")
-st.sidebar.write("Input the details below:")
+# Sidebar Input Section (for advanced level options)
+st.sidebar.title("Advanced Settings")
+st.sidebar.write("Adjust advanced parameters for the sales prediction:")
 
-# User Inputs
-item_weight = st.sidebar.slider("Item Weight", 0.0, 20.0, 0.2)
-item_visibility = st.sidebar.slider("Item Visibility", 0.0, 0.5, 0.1)
-item_mrp = st.sidebar.slider("Item MRP", 0.0, 500.0, 10.0)
-outlet_age = st.sidebar.slider("Outlet Age", 0, 50, 2)
+# Additional advanced settings for the model, if required
+show_feature_importance = st.sidebar.checkbox("Show Feature Importance", value=True)
 
-item_fat_content = st.sidebar.selectbox("Item Fat Content", list(fat_content_map.values()))
-item_type = st.sidebar.selectbox("Item Type", list(item_type_map.values()))
-outlet_size = st.sidebar.selectbox("Outlet Size", list(outlet_size_map.values()))
-outlet_location_type = st.sidebar.selectbox("Outlet Location Type", list(location_type_map.values()))
-outlet_type = st.sidebar.selectbox("Outlet Type", list(outlet_type_map.values()))
+# Main Body - User Inputs
+st.write("Fill out the form below to predict the sales of a product. Each input field is explained for clarity.")
+
+# Create three columns for input fields
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    item_weight = st.number_input(
+        "Item Weight (kg)", 
+        min_value=0.0, 
+        max_value=20.0, 
+        value=0.2, 
+        step=0.1,
+        help="Weight of the product in kilograms. Generally, higher weight may imply higher sales."
+    )
+    item_fat_content = st.selectbox(
+        "Item Fat Content", 
+        list(fat_content_map.values()),
+        help="Choose whether the product is low fat or regular fat. This can affect consumer preferences."
+    )
+    item_mrp = st.slider(
+        "Item MRP (INR)", 
+        0.0, 
+        500.0, 
+        10.0,
+        help="Maximum Retail Price (MRP) of the item in INR. The higher the price, the lower the potential sales."
+    )
+
+with col2:
+    item_visibility = st.slider(
+        "Item Visibility", 
+        0.0, 
+        0.5, 
+        0.1,
+        help="How visible the product is in the store. Visibility can greatly influence sales."
+    )
+    item_type = st.selectbox(
+        "Item Type", 
+        list(item_type_map.values()),
+        help="Select the category of the item (e.g., Dairy, Soft Drinks, etc.). This helps in understanding the type of product."
+    )
+    outlet_size = st.selectbox(
+        "Outlet Size", 
+        list(outlet_size_map.values()),
+        help="Size of the retail outlet where the product is sold. Larger outlets tend to have higher sales."
+    )
+
+with col3:
+    outlet_location_type = st.selectbox(
+        "Outlet Location Type", 
+        list(location_type_map.values()),
+        help="Location of the outlet (e.g., Tier 1, Tier 2, or Tier 3 cities). It can influence sales depending on the location."
+    )
+    outlet_type = st.selectbox(
+        "Outlet Type", 
+        list(outlet_type_map.values()),
+        help="Choose the type of outlet (e.g., Supermarket, Grocery Store). This will affect the sales environment."
+    )
+    outlet_age = st.slider(
+        "Outlet Age (years)", 
+        0, 
+        50, 
+        2,
+        help="Age of the outlet in years. Older outlets may have more customer loyalty."
+    )
 
 # Map inputs to encoded values
 item_fat_content_encoded = list(fat_content_map.keys())[list(fat_content_map.values()).index(item_fat_content)]
@@ -45,7 +102,7 @@ outlet_location_type_encoded = list(location_type_map.keys())[list(location_type
 outlet_type_encoded = list(outlet_type_map.keys())[list(outlet_type_map.values()).index(outlet_type)]
 
 # Prediction Button
-if st.sidebar.button("Predict Sales"):
+if st.button("Predict Sales"):
     # Prepare input data with correct column names
     input_data = pd.DataFrame([[
         item_weight, item_fat_content_encoded, item_visibility, item_type_encoded, 
@@ -65,7 +122,7 @@ if st.sidebar.button("Predict Sales"):
 
     # Display Results
     st.write("### Predicted Item Sales")
-    st.success(f"{predicted_sales:.2f} /-")
+    st.success(f"Predicted Value: {predicted_sales:.2f} /-")
 
     # Show prediction in context of input
     st.write("#### Input Summary")
@@ -78,17 +135,18 @@ if st.sidebar.button("Predict Sales"):
     input_summary["Value"] = input_summary["Value"].astype(str)  # Convert all values to strings
     st.table(input_summary)
 
-    # Interactive Chart
-    st.write("### Feature Importance")
-    feature_names = ["Item Weight", "Item Fat Content", "Item Visibility", "Item Type", "Item MRP", 
-                     "Outlet Size", "Outlet Location Type", "Outlet Type", "Outlet Age"]
-    feature_importances = gbr.feature_importances_
-    plt.figure(figsize=(10, 6))
-    sns.barplot(x=feature_importances, y=feature_names, hue=feature_names, palette="viridis")
-    plt.title("Feature Importance for Gradient Boosting Model")
-    plt.xlabel("Importance")
-    plt.ylabel("Feature")
-    st.pyplot(plt)
+    if show_feature_importance:
+        # Interactive Chart for Feature Importance
+        st.write("### Feature Importance")
+        feature_names = ["Item Weight", "Item Fat Content", "Item Visibility", "Item Type", "Item MRP", 
+                         "Outlet Size", "Outlet Location Type", "Outlet Type", "Outlet Age"]
+        feature_importances = gbr.feature_importances_
+        plt.figure(figsize=(10, 6))
+        sns.barplot(x=feature_importances, y=feature_names, hue=feature_names, palette="viridis")
+        plt.title("Feature Importance for Gradient Boosting Model")
+        plt.xlabel("Importance")
+        plt.ylabel("Feature")
+        st.pyplot(plt)
 
 # Footer
 st.sidebar.markdown("---")
