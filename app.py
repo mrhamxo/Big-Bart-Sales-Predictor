@@ -4,10 +4,12 @@ import pandas as pd
 from sklearn.ensemble import GradientBoostingRegressor
 import matplotlib.pyplot as plt
 import seaborn as sns
-import joblib
+import pickle
 
 # Load the trained Gradient Boosting model
-gbr = joblib.load("models/gbr.pkl")
+with open("models/gbr.pkl", "rb") as f:
+    gbr = pickle.load(f)
+
 
 st.title("Big Mart Sales Prediction")
 
